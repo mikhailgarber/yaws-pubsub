@@ -1,2 +1,2 @@
 
-console.log('hello jaws-pubsub');
+console.log('hello yaws-pubsub');

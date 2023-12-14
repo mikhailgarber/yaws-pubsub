@@ -5,7 +5,7 @@ import WebSocket from 'ws';
 import { v4 as uuid } from 'uuid';
 import { connect, disconnect, executeCommand } from './Controller';
 
-console.log('hello jaws-pubsub');
+console.log('hello yaws-pubsub');
 
 let wss: WebSocket.Server = null;
 

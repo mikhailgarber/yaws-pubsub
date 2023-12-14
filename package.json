@@ -1,5 +1,5 @@
 {
-  "name": "jaws-pubsub",
+  "name": "yaws-pubsub",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mikhailgarber/jaws-pubsub.git"
+    "url": "git+https://github.com/mikhailgarber/yaws-pubsub.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/mikhailgarber/jaws-pubsub/issues"
+    "url": "https://github.com/mikhailgarber/yaws-pubsub/issues"
   },
-  "homepage": "https://github.com/mikhailgarber/jaws-pubsub#readme",
+  "homepage": "https://github.com/mikhailgarber/yaws-pubsub#readme",
   "devDependencies": {
     "typescript": "5.3.3",
     "@types/jest": "29.5.11",
