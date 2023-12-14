@@ -9,73 +9,91 @@ export async function executeCommand(clientId: string, command: COMMAND_TYPE, me
     console.log(`executing command ${command} from ${clientId}`)
     switch (command) {
         case 'subscribe':
-            {
-                let { subs, channel } = getSubs(message, command);
-                if (!subs) {
-                    subs = [];
-                    subsByChannel.set(channel, subs);
-                }
-                subs.push(clientId);
-            }
-            subsByChannel.forEach((value, key) => {
-                console.log(`channel: ${key}, subscribers: ${value}`)
-            });
+            doSubscribe(message, command, clientId);
+            printSubscriptions();
             break;
 
         case 'publish':
-            {
-                const { subs, channel } = getSubs(message, command);
-
-                const payload = message.payload;
-                if (!payload) {
-                    throw new Error(`payload is missing in ${command}`);
-                }
-
-                if (subs) {
-                    for (const sub of subs) {
-                        setImmediate(() => {
-                            const socket = socketsById.get(sub);
-                            if (socket) {
-                                const stringPayload = JSON.stringify(payload);
-                                socket.send(stringPayload, () => {
-                                    console.log(`sent message from ${clientId} to ${sub}: ${stringPayload}`)
-                                });
-                            }
-                        });
-                    }
-                }
-            }
+            doPublish(message, command, clientId);
             break;
 
         case 'unsubscribe':
-            {
-                let { subs, channel } = getSubs(message, command);
-                if (subs) {
-                    const idx = subs.indexOf(clientId);
-                    if (idx > -1) {
-                        subs.splice(idx);
-                    }
-                    if (subs.length === 0) {
-                        subsByChannel.delete(channel);
-                        console.log(`deleted subs for channel: ${channel}`)
-                    }
-                }
-
-            }
-            subsByChannel.forEach((value, key) => {
-                console.log(`channel: ${key}, subscribers: ${value}`)
-            });
+            doUnsubscribe(message, command, clientId);
+            printSubscriptions();
             break;
     }
 }
 
-function getSubs(message: any, command: string) {
+function printSubscriptions() {
+    subsByChannel.forEach((value, key) => {
+        console.log(`channel: ${key}, subscribers: ${value}`);
+    });
+}
+
+function doSubscribe(message: any, command: string, clientId: string) {
+    {
+        const channel = getChannel(message, command);
+        console.log(`subscribing ${clientId} to ${channel}`)
+        let subs = subsByChannel.get(channel);
+        if (!subs) {
+            subs = [];
+            subsByChannel.set(channel, subs);
+        }
+        subs.push(clientId);
+    }
+}
+
+function doPublish(message: any, command: string, clientId: string) {
+    {
+        const channel = getChannel(message, command);
+        const subs = subsByChannel.get(channel);
+        const payload = message.payload;
+        if (!payload) {
+            throw new Error(`payload is missing in ${command}`);
+        }
+
+        if (subs) {
+            for (const sub of subs) {
+                setImmediate(() => {
+                    const socket = socketsById.get(sub);
+                    if (socket) {
+                        const stringPayload = JSON.stringify(payload);
+                        socket.send(stringPayload, () => {
+                            console.log(`sent message from ${clientId} to ${sub}: ${stringPayload}`);
+                        });
+                    }
+                });
+            }
+        }
+    }
+}
+
+function doUnsubscribe(message: any, command: string, clientId: string) {
+    {
+        const channel = getChannel(message, command);
+        console.log(`unsubscribing ${clientId} from ${channel}`)
+        let subs = subsByChannel.get(channel);
+        if (subs) {
+            const idx = subs.indexOf(clientId);
+            if (idx > -1) {
+                subs.splice(idx);
+            }
+            if (subs.length === 0) {
+                subsByChannel.delete(channel);
+                console.log(`deleted subs for channel: ${channel}`);
+            }
+        }
+
+    }
+}
+
+
+function getChannel(message: any, command: string) {
     const channel = message.channel;
     if (!channel) {
         throw new Error(`channel is missing in ${command}`);
     }
-    let subs = subsByChannel.get(channel);
-    return { subs, channel };
+    return channel;
 }
 
 export function connect(clientId: string, socket: WebSocket) {
@@ -86,4 +104,7 @@ export function connect(clientId: string, socket: WebSocket) {
 export function disconnect(clientId: string) {
     console.log(`closing client ${clientId}`)
     socketsById.delete(clientId);
+    for (const channel of subsByChannel.keys()) {
+        doUnsubscribe({ channel }, 'unsubscribe', clientId);
+    }
 }

@@ -5,7 +5,7 @@ import { start } from '../src/Server';
 import { sleep } from '../src/Utils';
 import { awaitReceive, awaitSend, createClientSocket, startServer, stopServer } from './TestUtils';
 
-test('Hello World', async () => {
+test('connect two clients and send message', async () => {
     const server = http.createServer();
     await startServer(server);
     let senderSocket: WebSocket;
@@ -28,6 +28,30 @@ test('Hello World', async () => {
         if (senderSocket) {
             senderSocket.close();
         }
+        if (receiverSocket) {
+            receiverSocket.close();
+        }
+        await stopServer(server);
+        await sleep(200);
+    }
+});
+
+test('subscribe to many channels and disconnect', async () => {
+    const server = http.createServer();
+    await startServer(server);
+
+    let receiverSocket: WebSocket;
+    try {
+        console.log('testing using http server')
+        start(server);
+        receiverSocket = await createClientSocket();
+        for (let i = 0; i < 10; i++) {
+            await awaitSend(receiverSocket, { command: 'subscribe', channel: `test ${i}` });
+        }
+        await sleep(200);
+
+    } finally {
+
         if (receiverSocket) {
             receiverSocket.close();
         }
