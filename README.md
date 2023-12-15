@@ -64,3 +64,19 @@ server.listen(port, () => {
 });
 ```
 
+## how to add authentication
+
+Add authenticate function to start() call:
+
+```
+authenticate?: (socket: WebSocket, request: http.IncomingMessage) => boolean
+```
+
+as in:
+
+```
+start(server, (socket, request) => {
+            return request.url?.indexOf('good') !== -1;
+        });
+```
+
