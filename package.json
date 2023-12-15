@@ -2,8 +2,8 @@
   "name": "yaws-pubsub",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/Server.js",
+  "types": "dist/Server.d.ts",
   "scripts": {
     "test": "jest",
     "build": "tsc"
