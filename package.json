@@ -1,7 +1,7 @@
 {
   "name": "yaws-pubsub",
   "version": "1.0.0",
-  "description": "",
+  "description": "Simple websocket pubsub broker supporting subscribe, unsubscribe and publish commands",
   "main": "dist/Server.js",
   "types": "dist/Server.d.ts",
   "scripts": {
@@ -12,9 +12,9 @@
     "type": "git",
     "url": "git+https://github.com/mikhailgarber/yaws-pubsub.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["websocket", "pubsub", "broker"],
+  "author": "Mikhail Garber",
+  "license": "GPL 3.0",
   "bugs": {
     "url": "https://github.com/mikhailgarber/yaws-pubsub/issues"
   },
