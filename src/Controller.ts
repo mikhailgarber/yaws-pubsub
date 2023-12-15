@@ -5,6 +5,19 @@ type COMMAND_TYPE = 'subscribe' | 'unsubscribe' | 'publish';
 const subsByChannel: Map<string, Array<any>> = new Map();
 const socketsById: Map<string, WebSocket> = new Map();
 
+export function connect(clientId: string, socket: WebSocket) {
+    console.log(`new connection ${clientId}`)
+    socketsById.set(clientId, socket);
+}
+
+export function disconnect(clientId: string) {
+    console.log(`closing client ${clientId}`)
+    socketsById.delete(clientId);
+    for (const channel of subsByChannel.keys()) {
+        doUnsubscribe({ channel }, 'unsubscribe', clientId);
+    }
+}
+
 export async function executeCommand(clientId: string, command: COMMAND_TYPE, message: any) {
     console.log(`executing command ${command} from ${clientId}`)
     switch (command) {
@@ -96,15 +109,3 @@ function getChannel(message: any, command: string) {
     return channel;
 }
 
-export function connect(clientId: string, socket: WebSocket) {
-    console.log(`new connection ${clientId}`)
-    socketsById.set(clientId, socket);
-}
-
-export function disconnect(clientId: string) {
-    console.log(`closing client ${clientId}`)
-    socketsById.delete(clientId);
-    for (const channel of subsByChannel.keys()) {
-        doUnsubscribe({ channel }, 'unsubscribe', clientId);
-    }
-}

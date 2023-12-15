@@ -2,12 +2,11 @@
   "compilerOptions": {
     "module": "commonjs",
     "esModuleInterop": true,
-    "target": "ES2018",
-    "moduleResolution": "node",
+    "target": "es6",
     "sourceMap": true,
-    "outDir": "dist"
-  },
-  "lib": [
-    "es2018"
-  ]
+    "outDir": "./dist",
+    "strict": true,  
+    "declaration": true,
+    "rootDir": "./src"
+  }
 }

@@ -1,15 +1,15 @@
 
 import http from 'http';
 import WebSocket from 'ws';
-import { start } from '../src/Server';
-import { sleep } from '../src/Utils';
+import { start } from './Server';
+import { sleep } from './Utils';
 import { awaitReceive, awaitSend, createClientSocket, startServer, stopServer } from './TestUtils';
 
 test('connect two clients and send message', async () => {
     const server = http.createServer();
     await startServer(server);
-    let senderSocket: WebSocket;
-    let receiverSocket: WebSocket;
+    let senderSocket: WebSocket | undefined  = undefined;
+    let receiverSocket: WebSocket | undefined = undefined;
     try {
         console.log('testing using http server')
         start(server);
@@ -32,6 +32,7 @@ test('connect two clients and send message', async () => {
             receiverSocket.close();
         }
         await stopServer(server);
+
         await sleep(200);
     }
 });
@@ -40,7 +41,7 @@ test('subscribe to many channels and disconnect', async () => {
     const server = http.createServer();
     await startServer(server);
 
-    let receiverSocket: WebSocket;
+    let receiverSocket: WebSocket | undefined = undefined;
     try {
         console.log('testing using http server')
         start(server);
@@ -54,6 +55,27 @@ test('subscribe to many channels and disconnect', async () => {
 
         if (receiverSocket) {
             receiverSocket.close();
+        }
+        await stopServer(server);
+        await sleep(200);
+    }
+});
+
+test('connect and send garbage', async () => {
+    const server = http.createServer();
+    await startServer(server);
+    let senderSocket: WebSocket | undefined  = undefined;
+    try {
+        console.log('testing using http server')
+        start(server);
+        senderSocket = await createClientSocket();
+        await sleep(200);
+        await awaitSend(senderSocket, "dsgdfsgfdhfdhdghgdhg");
+
+    } finally {
+
+        if (senderSocket) {
+            senderSocket.close();
         }
         await stopServer(server);
         await sleep(200);

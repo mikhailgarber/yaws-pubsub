@@ -7,7 +7,7 @@ import { connect, disconnect, executeCommand } from './Controller';
 
 console.log('hello yaws-pubsub');
 
-let wss: WebSocket.Server = null;
+let wss: WebSocket.Server;
 
 export function start(server: http.Server | https.Server, authenticate?: (socket: WebSocket, request: http.IncomingMessage) => boolean) {
 
@@ -23,10 +23,10 @@ export function start(server: http.Server | https.Server, authenticate?: (socket
 
     wss.on('connection', (socket: WebSocket, request: http.IncomingMessage) => {
         const id = uuid();
-        
+
         connect(id, socket);
 
-        socket.on('close', () => {            
+        socket.on('close', () => {
             disconnect(id);
         });
         socket.on('error', error => {
@@ -38,16 +38,21 @@ export function start(server: http.Server | https.Server, authenticate?: (socket
                 console.error(`messages can only be text`);
                 return;
             }
-            const message = JSON.parse(data ? data.toString() : '{}');
-            console.log(`incoming message from ${id} ${JSON.stringify(message)}`)
-            const command = message.command;
-            if (!command) {
-                console.error(`incoming command message does not contain a command`);
-                return;
+            try {
+                const message = JSON.parse(data ? data.toString() : '{}');
+
+                console.log(`incoming message from ${id} ${data}`)
+                const command = message.command;
+                if (!command) {
+                    console.error(`incoming command message does not contain a command`);
+                    return;
+                }
+                setImmediate(async () => {
+                    await executeCommand(id, command, message);
+                });
+            } catch (err) {
+                console.error(`unexpected error handling message: ${err}`)
             }
-            setImmediate(async () => {
-                await executeCommand(id, command, message);
-            });
         });
 
         if (authenticate) {
@@ -57,9 +62,10 @@ export function start(server: http.Server | https.Server, authenticate?: (socket
                 socket.close();
             }
         }
-        
+
 
     });
+
 
     server.on('upgrade', (request: http.IncomingMessage, socket: net.Socket, head: Buffer) => {
         console.log('server upgrade connection')

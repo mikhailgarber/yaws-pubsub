@@ -1,6 +1,8 @@
 import http from 'http';
 import WebSocket from 'ws';
 
+const TEST_PORT = 7124;
+
 
 export async function awaitReceive(socket: WebSocket): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -25,9 +27,9 @@ export async function awaitSend(socket: WebSocket, message: any) {
 
 export async function createClientSocket(): Promise<WebSocket> {
     return new Promise((resolve, reject) => {
-        const ws = new WebSocket('ws://localhost:7124');
+        const ws = new WebSocket(`ws://localhost:${TEST_PORT}`);
         ws.on('open', () => {
-            console.log('ws open');
+            console.log('client ws open');
             resolve(ws);
         });
         ws.on('error', (error) => {
@@ -46,7 +48,7 @@ export async function startServer(server: http.Server) {
         server.on('error', (error) => {
             reject(error);
         })
-        server.listen(7124);
+        server.listen(TEST_PORT);
     });
 }
 
