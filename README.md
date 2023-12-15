@@ -41,6 +41,9 @@ Also see ./tests/TestUtils.ts
 
 ## how to integrate with existing Express server
 
+pass instance of Express to createServer:
+
+
 ```
 import express, { Request, Response } from 'express';
 import http from 'http';

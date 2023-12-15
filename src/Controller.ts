@@ -2,16 +2,14 @@ import { WebSocket } from "ws";
 
 type COMMAND_TYPE = 'subscribe' | 'unsubscribe' | 'publish';
 
-const subsByChannel: Map<string, Array<any>> = new Map();
+const subsByChannel: Map<string, Set<string>> = new Map();
 const socketsById: Map<string, WebSocket> = new Map();
 
-export function connect(clientId: string, socket: WebSocket) {
-    console.log(`new connection ${clientId}`)
+export function connect(clientId: string, socket: WebSocket) {    
     socketsById.set(clientId, socket);
 }
 
 export function disconnect(clientId: string) {
-    console.log(`closing client ${clientId}`)
     socketsById.delete(clientId);
     for (const channel of subsByChannel.keys()) {
         doUnsubscribe({ channel }, 'unsubscribe', clientId);
@@ -39,7 +37,10 @@ export async function executeCommand(clientId: string, command: COMMAND_TYPE, me
 
 function printSubscriptions() {
     subsByChannel.forEach((value, key) => {
-        console.log(`channel: ${key}, subscribers: ${value}`);
+        console.log(`channel: ${key}, subscribers:`);
+        value.forEach(subscriber => {
+            console.log(subscriber);
+        });
     });
 }
 
@@ -49,10 +50,10 @@ function doSubscribe(message: any, command: string, clientId: string) {
         console.log(`subscribing ${clientId} to ${channel}`)
         let subs = subsByChannel.get(channel);
         if (!subs) {
-            subs = [];
+            subs = new Set();
             subsByChannel.set(channel, subs);
         }
-        subs.push(clientId);
+        subs.add(clientId);
     }
 }
 
@@ -85,13 +86,10 @@ function doUnsubscribe(message: any, command: string, clientId: string) {
     {
         const channel = getChannel(message, command);
         console.log(`unsubscribing ${clientId} from ${channel}`)
-        let subs = subsByChannel.get(channel);
+        const subs = subsByChannel.get(channel);
         if (subs) {
-            const idx = subs.indexOf(clientId);
-            if (idx > -1) {
-                subs.splice(idx);
-            }
-            if (subs.length === 0) {
+            subs.delete(clientId);
+            if (subs.size === 0) {
                 subsByChannel.delete(channel);
                 console.log(`deleted subs for channel: ${channel}`);
             }

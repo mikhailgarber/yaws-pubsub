@@ -23,10 +23,11 @@ export function start(server: http.Server | https.Server, authenticate?: (socket
 
     wss.on('connection', (socket: WebSocket, request: http.IncomingMessage) => {
         const id = uuid();
-
+        console.log(`new connection ${id} to url ${request.url}`)
         connect(id, socket);
 
         socket.on('close', () => {
+            console.log(`closing client ${id}`)
             disconnect(id);
         });
         socket.on('error', error => {

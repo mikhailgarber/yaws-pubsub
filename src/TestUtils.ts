@@ -25,9 +25,9 @@ export async function awaitSend(socket: WebSocket, message: any) {
     });
 }
 
-export async function createClientSocket(): Promise<WebSocket> {
+export async function createClientSocket(path?: string): Promise<WebSocket> {
     return new Promise((resolve, reject) => {
-        const ws = new WebSocket(`ws://localhost:${TEST_PORT}`);
+        const ws = new WebSocket(`ws://localhost:${TEST_PORT}/${path ? path : ''}`);
         ws.on('open', () => {
             console.log('client ws open');
             resolve(ws);
