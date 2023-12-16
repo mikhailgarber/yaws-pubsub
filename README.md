@@ -3,6 +3,8 @@
 Here is another one of those websocket brokers that allow for pubsub message exchange. Unlike others you might see elsewhere, this one
 can augument your existign http server, i.e. Express.
 
+Available as NPM package **yaws-pubsub**
+
 ## Commands
 
 After client connects to a websocket (with optional external authentication), they can issue commands by sending these JSON messages:
