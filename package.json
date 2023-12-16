@@ -1,6 +1,6 @@
 {
   "name": "yaws-pubsub",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple websocket pubsub broker supporting subscribe, unsubscribe and publish commands",
   "main": "dist/Server.js",
   "types": "dist/Server.d.ts",

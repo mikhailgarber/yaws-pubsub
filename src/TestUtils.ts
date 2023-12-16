@@ -65,3 +65,16 @@ export async function stopServer(server: http.Server) {
         server.close();
     });
 }
+
+export class DeferredPromise {
+    promise: Promise<any>;
+    reject: (reason?: any) => void = () => {};
+    resolve: (value: any) => void = () => {};;
+    
+    constructor() {
+      this.promise = new Promise((resolve, reject) => {
+        this.reject = reject;
+        this.resolve = resolve;
+      });
+    }
+  }

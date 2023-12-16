@@ -1,22 +1,27 @@
 import { WebSocket } from "ws";
 
 type COMMAND_TYPE = 'subscribe' | 'unsubscribe' | 'publish';
+type executeFunction = (payload: any) => void;
 
 const subsByChannel: Map<string, Set<string>> = new Map();
-const socketsById: Map<string, WebSocket> = new Map();
+const receiverById: Map<string, executeFunction> = new Map();
 
-export function connect(clientId: string, socket: WebSocket) {    
-    socketsById.set(clientId, socket);
+export function connect(clientId: string, func?: executeFunction) {
+    if (func) {
+        receiverById.set(clientId, func);
+    }
 }
 
+
 export function disconnect(clientId: string) {
-    socketsById.delete(clientId);
+    receiverById.delete(clientId);
     for (const channel of subsByChannel.keys()) {
         doUnsubscribe({ channel }, 'unsubscribe', clientId);
     }
 }
 
-export async function executeCommand(clientId: string, command: COMMAND_TYPE, message: any) {
+export async function executeCommand(clientId: string, message: any) {
+    const command: COMMAND_TYPE = message.command;
     console.log(`executing command ${command} from ${clientId}`)
     switch (command) {
         case 'subscribe':
@@ -32,6 +37,8 @@ export async function executeCommand(clientId: string, command: COMMAND_TYPE, me
             doUnsubscribe(message, command, clientId);
             printSubscriptions();
             break;
+        default:
+            console.error(`unknown command: ${command}`)
     }
 }
 
@@ -69,13 +76,12 @@ function doPublish(message: any, command: string, clientId: string) {
         if (subs) {
             for (const sub of subs) {
                 setImmediate(() => {
-                    const socket = socketsById.get(sub);
-                    if (socket) {
-                        const stringPayload = JSON.stringify(payload);
-                        socket.send(stringPayload, () => {
-                            console.log(`sent message from ${clientId} to ${sub}: ${stringPayload}`);
-                        });
+                    const receiver = receiverById.get(sub);
+                    if (receiver) {
+                        receiver(payload);
+                        console.log(`sent message from ${clientId} to ${sub}`);
                     }
+
                 });
             }
         }

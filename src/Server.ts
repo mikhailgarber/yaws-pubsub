@@ -23,8 +23,11 @@ export function start(server: http.Server | https.Server, authenticate?: (socket
 
     wss.on('connection', (socket: WebSocket, request: http.IncomingMessage) => {
         const id = uuid();
-        console.log(`new connection ${id} to url ${request.url}`)
-        connect(id, socket);
+        console.log(`new connection ${id} to url ${request.url}`)                        
+        connect(id, payload => {
+            const stringPayload = JSON.stringify(payload);
+            socket.send(stringPayload);
+        });
 
         socket.on('close', () => {
             console.log(`closing client ${id}`)
@@ -49,7 +52,7 @@ export function start(server: http.Server | https.Server, authenticate?: (socket
                     return;
                 }
                 setImmediate(async () => {
-                    await executeCommand(id, command, message);
+                    await executeCommand(id, message);
                 });
             } catch (err) {
                 console.error(`unexpected error handling message: ${err}`)
@@ -64,9 +67,7 @@ export function start(server: http.Server | https.Server, authenticate?: (socket
             }
         }
 
-
     });
-
 
     server.on('upgrade', (request: http.IncomingMessage, socket: net.Socket, head: Buffer) => {
         console.log('server upgrade connection')
