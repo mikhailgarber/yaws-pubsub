@@ -22,7 +22,6 @@ export function disconnect(clientId: string) {
 
 export async function executeCommand(clientId: string, message: any) {
     const command: COMMAND_TYPE = message.command;
-    console.log(`executing command ${command} from ${clientId}`)
     switch (command) {
         case 'subscribe':
             doSubscribe(message, command, clientId);
@@ -79,7 +78,6 @@ function doPublish(message: any, command: string, clientId: string) {
                     const receiver = receiverById.get(sub);
                     if (receiver) {
                         receiver(payload);
-                        console.log(`sent message from ${clientId} to ${sub}`);
                     }
 
                 });

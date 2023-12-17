@@ -11,7 +11,6 @@ let wss: WebSocket.Server;
 
 export function start(server: http.Server | https.Server, authenticate?: (socket: WebSocket, request: http.IncomingMessage) => boolean) {
 
-
     wss = new WebSocket.Server({
         noServer: true
     });
@@ -44,8 +43,6 @@ export function start(server: http.Server | https.Server, authenticate?: (socket
             }
             try {
                 const message = JSON.parse(data ? data.toString() : '{}');
-
-                console.log(`incoming message from ${id} ${data}`)
                 const command = message.command;
                 if (!command) {
                     console.error(`incoming command message does not contain a command`);
