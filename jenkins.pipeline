@@ -3,7 +3,7 @@ pipeline {
 
     stages {
         
-        stage('Prep) {
+        stage('Prep') {
             steps {
                 sh "sed -i 's/XXX/${env.BUILD_NUMBER}/' ./package.json"
             }
