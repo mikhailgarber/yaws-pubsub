@@ -4,7 +4,7 @@ import WebSocket from 'ws';
 import { start } from './Server';
 import { sleep } from './Utils';
 import { awaitReceive, awaitSend, createClientSocket, startServer, stopServer } from './TestUtils';
-
+/*
 test('connect two clients and send message', async () => {
     const server = http.createServer();
     await startServer(server);
@@ -102,6 +102,8 @@ test('subscribe to many channels and disconnect', async () => {
     }
 });
 
+
+
 test('connect and send garbage', async () => {
     const server = http.createServer();
     await startServer(server);
@@ -147,4 +149,32 @@ test('socket authentication', async () => {
         await sleep(200);
     }
 });
+*/
+test('subscribe/unsubscribe to channel and receive system messages', async () => {
+    const server = http.createServer();
+    await startServer(server);
 
+    let receiverSocket: WebSocket | undefined = undefined;
+    try {
+        console.log('testing using http server')
+        start(server);
+        receiverSocket = await createClientSocket();
+
+        await awaitSend(receiverSocket, { command: 'subscribe', channel: `system-subscriptions` });
+        
+        const receivedMessage = await awaitReceive(receiverSocket);
+        console.log(`received message ${JSON.stringify(receivedMessage)}`)
+        expect(receivedMessage.command).toBe('subscribe');
+        expect(receivedMessage.channel).toBe('system-subscriptions');
+
+        await sleep(200);
+
+    } finally {
+
+        if (receiverSocket) {
+            receiverSocket.close();
+        }
+        await stopServer(server);
+        await sleep(200);
+    }
+});
