@@ -4,7 +4,7 @@ import WebSocket from 'ws';
 import { start } from './Server';
 import { sleep } from './Utils';
 import { awaitReceive, awaitSend, createClientSocket, startServer, stopServer } from './TestUtils';
-/*
+
 test('connect two clients and send message', async () => {
     const server = http.createServer();
     await startServer(server);
@@ -149,7 +149,7 @@ test('socket authentication', async () => {
         await sleep(200);
     }
 });
-*/
+
 test('subscribe/unsubscribe to channel and receive system messages', async () => {
     const server = http.createServer();
     await startServer(server);
