@@ -1,4 +1,3 @@
-import { WebSocket } from "ws";
 
 type COMMAND_TYPE = 'subscribe' | 'unsubscribe' | 'publish';
 type executeFunction = (payload: any) => void;
@@ -21,23 +20,27 @@ export function disconnect(clientId: string) {
 }
 
 export async function executeCommand(clientId: string, message: any) {
-    const command: COMMAND_TYPE = message.command;
-    switch (command) {
-        case 'subscribe':
-            doSubscribe(message, clientId);
-            printSubscriptions();
-            break;
+    try {
+        const command: COMMAND_TYPE = message.command;
+        switch (command) {
+            case 'subscribe':
+                doSubscribe(message, clientId);
+                printSubscriptions();
+                break;
 
-        case 'publish':
-            doPublish(message);
-            break;
+            case 'publish':
+                doPublish(message);
+                break;
 
-        case 'unsubscribe':
-            doUnsubscribe(message, clientId);
-            printSubscriptions();
-            break;
-        default:
-            console.error(`unknown command: ${command}`)
+            case 'unsubscribe':
+                doUnsubscribe(message, clientId);
+                printSubscriptions();
+                break;
+            default:
+                console.error(`unknown command: ${command}`)
+        }
+    } catch (err) {
+        console.error(`error executing command in message:${JSON.stringify(message)}\n, ${err}`)
     }
 }
 
